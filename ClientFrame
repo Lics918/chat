@@ -1,0 +1,184 @@
+package com.lics.chat02;
+
+import java.awt.BorderLayout;
+import java.awt.Frame;
+import java.awt.TextArea;
+import java.awt.TextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class ClientFrame extends Frame {
+
+    private TextField textFieldContent = new TextField();
+    private TextArea textAreaContent = new TextArea();
+    private Socket socket = null;
+    private OutputStream out = null;
+    private DataOutputStream dos = null;
+    private InputStream in = null;
+    private DataInputStream dis = null;
+    private boolean flag = false;
+
+    /**
+     * 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍9:19:51 鍔熻兘锛氬惎鍔ㄥ鎴风绋嬪簭
+     * 
+     * @param args
+     */
+    public static void main(String[] args) {
+        new ClientFrame().init();
+    }
+
+    /**
+     * 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍9:20:43 鍔熻兘锛氬绐楀彛杩涜鍒濆鍖�
+     */
+    private void init() {
+        this.setSize(300, 300);
+        setLocation(250, 150);
+        setVisible(true);
+        setTitle("WeChatRoom");
+
+        // 娣诲姞鎺т欢
+        this.add(textAreaContent);
+        this.add(textFieldContent, BorderLayout.SOUTH);
+        textAreaContent.setFocusable(false);
+        pack();
+
+        // 鍏抽棴浜嬩欢
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.out.println("鐢ㄦ埛璇曞浘鍏抽棴绐楀彛");
+                disconnect();
+                System.exit(0);
+            }
+
+        });
+        // textFieldContent娣诲姞鍥炶溅浜嬩欢
+        textFieldContent.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                onClickEnter();
+            }
+        });
+
+        // 寤虹珛杩炴帴
+        connect();
+        new Thread(new ReciveMessage()).start();
+    }
+
+    private class ReciveMessage implements Runnable {
+        @Override
+        public void run() {
+            flag = true;
+            try {
+                while (flag) {
+                    String message = dis.readUTF();
+                    textAreaContent.append(message + "\n");
+                }
+            } catch (EOFException e) {
+                flag = false;
+                System.out.println("瀹㈡埛绔凡鍏抽棴");
+                // e.printStackTrace();
+            } catch (SocketException e) {
+                flag = false;
+                System.out.println("瀹㈡埛绔凡鍏抽棴");
+                // e.printStackTrace();
+            } catch (IOException e) {
+                flag = false;
+                System.out.println("鎺ュ彈娑堟伅澶辫触");
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    /**
+     * 鍔熻兘锛氬綋鐐瑰嚮鍥炶溅鏃跺嚭鍙戠殑浜嬩欢 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍9:49:30
+     */
+    private void onClickEnter() {
+        String message = textFieldContent.getText().trim();
+        if (message != null && !message.equals("")) {
+            String time = new SimpleDateFormat("h:m:s").format(new Date());
+            textAreaContent.append(time + "\n" + message + "\n");
+            textFieldContent.setText("");
+            sendMessageToServer(message);
+        }
+    }
+
+    /**
+     * 鍔熻兘锛氱粰鏈嶅姟鍣ㄥ彂閫佹秷鎭� 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍10:13:48
+     * 
+     * @param message
+     */
+    private void sendMessageToServer(String message) {
+        try {
+            dos.writeUTF(message);
+            dos.flush();
+        } catch (IOException e) {
+            System.out.println("鍙戦�佹秷鎭け璐�");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 鍔熻兘锛氱敵璇穝ocket閾炬帴 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍10:00:38
+     */
+    private void connect() {
+        try {
+            socket = new Socket("localhost", 8888);
+            out = socket.getOutputStream();
+            dos = new DataOutputStream(out);
+            in = socket.getInputStream();
+            dis = new DataInputStream(in);
+        } catch (UnknownHostException e) {
+            System.out.println("鐢宠閾炬帴澶辫触");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("鐢宠閾炬帴澶辫触");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 鍔熻兘锛氬叧闂祦鍜岄摼鎺� 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍10:01:32
+     */
+    private void disconnect() {
+        flag = false;
+        if (dos != null) {
+            try {
+                dos.close();
+            } catch (IOException e) {
+                System.out.println("dos鍏抽棴澶辫触");
+                e.printStackTrace();
+            }
+        }
+        if (out != null) {
+            try {
+                out.close();
+            } catch (IOException e) {
+                System.out.println("dos鍏抽棴澶辫触");
+                e.printStackTrace();
+            }
+        }
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                System.out.println("socket鍏抽棴澶辫触");
+                e.printStackTrace();
+            }
+            ;
+        }
+    }
+
+}
