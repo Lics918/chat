@@ -32,7 +32,7 @@ public class ClientFrame extends Frame {
     private boolean flag = false;
 
     /**
-     * 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍9:19:51 鍔熻兘锛氬惎鍔ㄥ鎴风绋嬪簭
+     * 学校：山东师范大学 程序员：外力_Victor 日期：2016年5月8日 上午9:19:51 功能：启动客户端程序
      * 
      * @param args
      */
@@ -41,7 +41,7 @@ public class ClientFrame extends Frame {
     }
 
     /**
-     * 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍9:20:43 鍔熻兘锛氬绐楀彛杩涜鍒濆鍖�
+     * 学校：山东师范大学 程序员：外力_Victor 日期：2016年5月8日 上午9:20:43 功能：对窗口进行初始化
      */
     private void init() {
         this.setSize(300, 300);
@@ -49,29 +49,29 @@ public class ClientFrame extends Frame {
         setVisible(true);
         setTitle("WeChatRoom");
 
-        // 娣诲姞鎺т欢
+        // 添加控件
         this.add(textAreaContent);
         this.add(textFieldContent, BorderLayout.SOUTH);
         textAreaContent.setFocusable(false);
         pack();
 
-        // 鍏抽棴浜嬩欢
+        // 关闭事件
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                System.out.println("鐢ㄦ埛璇曞浘鍏抽棴绐楀彛");
+                System.out.println("用户试图关闭窗口");
                 disconnect();
                 System.exit(0);
             }
 
         });
-        // textFieldContent娣诲姞鍥炶溅浜嬩欢
+        // textFieldContent添加回车事件
         textFieldContent.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onClickEnter();
             }
         });
 
-        // 寤虹珛杩炴帴
+        // 建立连接
         connect();
         new Thread(new ReciveMessage()).start();
     }
@@ -87,15 +87,15 @@ public class ClientFrame extends Frame {
                 }
             } catch (EOFException e) {
                 flag = false;
-                System.out.println("瀹㈡埛绔凡鍏抽棴");
+                System.out.println("客户端已关闭");
                 // e.printStackTrace();
             } catch (SocketException e) {
                 flag = false;
-                System.out.println("瀹㈡埛绔凡鍏抽棴");
+                System.out.println("客户端已关闭");
                 // e.printStackTrace();
             } catch (IOException e) {
                 flag = false;
-                System.out.println("鎺ュ彈娑堟伅澶辫触");
+                System.out.println("接受消息失败");
                 e.printStackTrace();
             }
         }
@@ -103,7 +103,7 @@ public class ClientFrame extends Frame {
     }
 
     /**
-     * 鍔熻兘锛氬綋鐐瑰嚮鍥炶溅鏃跺嚭鍙戠殑浜嬩欢 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍9:49:30
+     * 功能：当点击回车时出发的事件 学校：山东师范大学 程序员：外力_Victor 日期：2016年5月8日 上午9:49:30
      */
     private void onClickEnter() {
         String message = textFieldContent.getText().trim();
@@ -116,7 +116,7 @@ public class ClientFrame extends Frame {
     }
 
     /**
-     * 鍔熻兘锛氱粰鏈嶅姟鍣ㄥ彂閫佹秷鎭� 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍10:13:48
+     * 功能：给服务器发送消息 学校：山东师范大学 程序员：外力_Victor 日期：2016年5月8日 上午10:13:48
      * 
      * @param message
      */
@@ -125,32 +125,32 @@ public class ClientFrame extends Frame {
             dos.writeUTF(message);
             dos.flush();
         } catch (IOException e) {
-            System.out.println("鍙戦�佹秷鎭け璐�");
+            System.out.println("发送消息失败");
             e.printStackTrace();
         }
     }
 
     /**
-     * 鍔熻兘锛氱敵璇穝ocket閾炬帴 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍10:00:38
+     * 功能：申请socket链接 学校：山东师范大学 程序员：外力_Victor 日期：2016年5月8日 上午10:00:38
      */
     private void connect() {
         try {
-            socket = new Socket("localhost", 8888);
+            socket = new Socket("172.180.26.19", 8888);//localhost
             out = socket.getOutputStream();
             dos = new DataOutputStream(out);
             in = socket.getInputStream();
             dis = new DataInputStream(in);
         } catch (UnknownHostException e) {
-            System.out.println("鐢宠閾炬帴澶辫触");
+            System.out.println("申请链接失败");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("鐢宠閾炬帴澶辫触");
+            System.out.println("申请链接失败");
             e.printStackTrace();
         }
     }
 
     /**
-     * 鍔熻兘锛氬叧闂祦鍜岄摼鎺� 瀛︽牎锛氬北涓滃笀鑼冨ぇ瀛� 绋嬪簭鍛橈細澶栧姏_Victor 鏃ユ湡锛�2016骞�5鏈�8鏃� 涓婂崍10:01:32
+     * 功能：关闭流和链接 学校：山东师范大学 程序员：外力_Victor 日期：2016年5月8日 上午10:01:32
      */
     private void disconnect() {
         flag = false;
@@ -158,7 +158,7 @@ public class ClientFrame extends Frame {
             try {
                 dos.close();
             } catch (IOException e) {
-                System.out.println("dos鍏抽棴澶辫触");
+                System.out.println("dos关闭失败");
                 e.printStackTrace();
             }
         }
@@ -166,7 +166,7 @@ public class ClientFrame extends Frame {
             try {
                 out.close();
             } catch (IOException e) {
-                System.out.println("dos鍏抽棴澶辫触");
+                System.out.println("dos关闭失败");
                 e.printStackTrace();
             }
         }
@@ -174,7 +174,7 @@ public class ClientFrame extends Frame {
             try {
                 socket.close();
             } catch (IOException e) {
-                System.out.println("socket鍏抽棴澶辫触");
+                System.out.println("socket关闭失败");
                 e.printStackTrace();
             }
             ;
