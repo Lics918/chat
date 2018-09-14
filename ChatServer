@@ -18,6 +18,7 @@ public class ChatServer {
     private List<Client> clients = new ArrayList<>();
 
     /**
+     * 【项目引自博客】
      * 功能：启动ChatSever 学校：山东师范大学 程序员：外力_Victor 日期：2016年5月8日 上午10:26:41
      * 
      * @param args
